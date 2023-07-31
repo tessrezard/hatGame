@@ -30,26 +30,85 @@ class Field {
     // state win or loss
 
     input() {
-        // we need to keep 
-        let move = prompt("Where shall we go? ( l, r, u, d ) ");
-        if (move === 'r'){
-            console.log('you went right!');
+        // we need to keep asking fro input until the star is on the hat
+        // need ot define a how to move. 
+
+        // check if the user has won. 
+        // first find the hat. scope. need to remember where the hat WAS even when it ihas changed to a star. 
+        let hatIndex;
+        let hatRow;
+        let move;
+        //set initial player posititon
+        // position = [row, collumn]
+        let position = [0, 0];
+        for (let i = 0; i < this.grid.length; i++){
+            if (this.grid[i].indexOf(hat) != -1){
+                hatRow = i;
+                hatIndex = this.grid[i].indexOf(hat);
+            }
         }
+
+        // then find all the stars. if any of the stars are in the same place as the hat? 
+        //check that the hat position is not now a star, is still the hat. 
+            // if yes, print 'you won'
+            // else, prompt move
+       
+        while (this.grid[hatRow][hatIndex] === hat ){
+
+            myField.print();
+            move = prompt("Which way? ( l, r, u, d ) ");
+            // set current position
+            switch (move) {
+                case 'l':
+                    position[1]--;
+                    break;
+                case 'r':
+                    position[1]++;
+                    break;
+                case 'u':
+                    position[0]--;
+                    break;
+                case 'd':
+                    position[0]++;
+                    break;
+                }
+            if (this.grid[position[0]][position[1]] ===hole){
+                console.log('Game over! You fell in a hole!');
+                return ('Game over! You fell in a hole!');
+            }
+            if (!this.grid[position[0]][position[1]]){
+                console.log(('Game over! Out of bounds!'));
+                return ('Game over! out of bounds!');
+            }
+            this.grid[position[0]].splice(position[1], 1, pathCharacter);
+            
+        }
+        if (this.grid[hatRow][hatIndex] != hat){
+            console.log('Congrats! You got your hat! YOU WON!'); 
+        }
+
+
+
+        // when move made, mutate arrays to sawp a star
+
     }
 
 }
 
 
 const myField = new Field([
-    ['*', '░', 'O'],
-  ['░', 'O', '░'],
-  ['░', '^', '░'],
-  ['░', 'O', '░'],
-  ['░', '░', '░'],
+    ['*', '░', '░', 'O', '░', '░'],
+  ['░','░', 'O', '░', '░', '░'],
+  ['░','░', '░', 'O', '░', '░'],
+  ['░','O', '░', '░', '░', '░'],
+  ['░','░', '░', 'O', '░', '░'],
+  ['░','░', '^', '░', '░', '░'],
+  ['░','░', 'O', '░', '░', '░'],
+  ['░','░', '░', 'O', '░', '░'],
+  
 ]);
 
 
-myField.print();
 
 myField.input();
 
