@@ -7,73 +7,101 @@ const pathCharacter = '*';
 
 
 class Field {
-    constructor(grid){
-        this.grid = grid;
+    constructor(field = [[]]){
+        this.field = field;
+        //set initial player position
+        this.positionY = 0; //row
+        this.positionX = 0; //col
+        //asign pathCharacter to top left
+        field[0][0] = pathCharacter;
+        
+
     }
 
     print() {
-        for (const row in this.grid) {
-            console.log(this.grid[row].join(''));
+        for (const row in this.field) {
+            console.log(this.field[row].join(''));
         }
     }
 
-    input() {
+    play() {
+        let playing = true;
+        // find hat, save its location
+        //find hat
         let hatIndex;
         let hatRow;
-        let move;
-        //set initial player posititon
-            // position = [row, collumn]
-        let position = [0, 0];
-        //find hat
-        for (let i = 0; i < this.grid.length; i++){
-            if (this.grid[i].indexOf(hat) != -1){
+        for (let i = 0; i < this.field.length; i++){
+            if (this.field[i].indexOf(hat) != -1){
                 hatRow = i;
-                hatIndex = this.grid[i].indexOf(hat);
+                hatIndex = this.field[i].indexOf(hat);
             }
         }
-        //check that the hat position is still the hat. 
-            // if yes, print 'you won'
-            // else, prompt move
-        while (this.grid[hatRow][hatIndex] === hat ){
-            myField.print();
-            move = prompt("Which way? ( l, r, u, d ) ");
-            // set current position
+
+        while (playing){
+            this.print();
+            this.input();
+
+            //check if move made user OUT
+            if (this.isOut()) {
+                console.log(('Game over! You went out of bounds!'));
+                playing = false;
+                break;
+            }
+
+            //check if move made user LOSE
+            if (this.isHole()) {
+                console.log('Game over! You fell in a hole!');
+                playing = false;
+                break;
+            }
+
+            //valid move, mutate arrays to splice a pathCharacter(star)
+            this.field[this.positionY][this.positionX]= pathCharacter;
+
+            //check is user WON
+            if (this.positionY === hatRow && this.positionX === hatIndex){
+                console.log('Congrats! You got your hat! YOU WON!');
+                playing = false;
+                break;
+            }
+        }
+        
+        }
+
+
+
+    input() {
+        const move = prompt("Where do you want to go? ( l, r, u, d ) ").toLowerCase();
+            // set current position according to move
             switch (move) {
                 case 'l':
-                    position[1]--;
+                    this.positionX -= 1;
                     break;
                 case 'r':
-                    position[1]++;
+                    this.positionX += 1;
                     break;
                 case 'u':
-                    position[0]--;
+                    this.positionY -= 1;
                     break;
                 case 'd':
-                    position[0]++;
+                    this.positionY += 1;
                     break;
                 }
-            //check if move made user lose
-            if (this.grid[position[0]][position[1]] ===hole){
-                console.log('Game over! You fell in a hole!');
-                return ('Game over! You fell in a hole!');
-            }
-            if (!this.grid[position[0]][position[1]]){
-                console.log(('Game over! Out of bounds!'));
-                return ('Game over! out of bounds!');
-            }
-            //valid move, mutate arrays to splice a pathCharacter(star)
-            this.grid[position[0]].splice(position[1], 1, pathCharacter);
-        }
-        if (this.grid[hatRow][hatIndex] != hat){
-            console.log('Congrats! You got your hat! YOU WON!'); 
-            return ('Congrats! You got your hat! YOU WON!');
+    }
+
+    isOut(){
+        if (this.positionY < 0 || this.positionX < 0 || this.positionY > this.field.length -1  || this.positionX > this.field[0].length - 1){ 
+            return true;
         }
     }
 
+    isHole(){
+        return this.field[this.positionY][this.positionX] === hole;
+    }
 
+    
     //returns a randomized two-dimensional array representing the field, inc 1 hat & >2 holes, takes arguments for height and width, and percentage of field covered by holes.
      static generateField(height, width, percentage) {
-        console.log('in gen field');
         const field = [];
         //buid an base field to size 
         while (field.length < height){
@@ -94,11 +122,9 @@ class Field {
                 randomCol = Math.floor(Math.random() * width);
             }
         field[randomRow][randomCol] = hat;
-        hatX = randomCol;
-        hatY = randomRow;
+
         //assign the holes. there should be the percentage of height * width
         let numHoles = ((height * width)/100)*percentage;
-        console.log(numHoles);
         //keep track of the holes
         let holesLocations = [];
         for (let i = 0; i <= numHoles; i++){
@@ -113,27 +139,13 @@ class Field {
             field[randomRow][randomCol] = hole;
             holesLocations.push(holeLocation);
         }
-        
-        for (const row in field) {
-            console.log(field[row].join(''));
-        }
+
+        return field
     }
 }
 
-const myfield = new Field(Field.generateField(30, 20, 4));
-myfield.input();
-
-// const myField = new Field([
-//     ['*', '░', '░', 'O', '░', '░'],
-//   ['░','░', 'O', '░', '░', '░'],
-//   ['░','░', '░', 'O', '░', '░'],
-//   ['░','O', '░', '░', '░', '░'],
-//   ['░','░', '░', 'O', '░', '░'],
-//   ['░','░', '^', '░', '░', '░'],
-//   ['░','░', 'O', '░', '░', '░'],
-//   ['░','░', '░', 'O', '░', '░'],
-  
-// ]);
+const myfield = new Field(Field.generateField(20, 20, 15));
+myfield.play();
 
 
 
